@@ -1,122 +1,115 @@
-# %%
-# 1. Write a program to print “Hello Python” on the screen.
-print ("Hello Python")
+# Python Basics — Input, Output & Arithmetic (Problems 1–20)
 
-# %%
-# 2. Take a name as input and print:
-name = input ("Enter Your Name : ")
-print ("Welcome ",name)
+# =============================================================================
+# A. PRINT & INPUT
+# =============================================================================
 
-# %%
+# 1. Print "Hello Python".
+print("Hello Python")
+
+# 2. Take a name as input and greet the user.
+name = input("Enter your name: ")
+print(f"Welcome, {name}")
+
 # 3. Take a number as input and print it.
-age = int(input ("Enter Your Age : "))
-print ("Your age is : ",age)
+age = int(input("Enter your age: "))
+print(f"Your age is: {age}")
 
-# %%
-# 4. Take two numbers as input and print both numbers on separate lines.
-num1 = int(input ("Enter first no. : "))
-num2 = int(input ("Enter second no. : "))
-print ("First no. : ",num1)
-print ("Second no. : ",num2)
+# 4. Take two numbers and print them on separate lines.
+num1 = int(input("Enter first number: "))
+num2 = int(input("Enter second number: "))
+print(f"First number : {num1}")
+print(f"Second number: {num2}")
 
-# %%
-# 5. Take a name and age as input and print:
-# My name is ___ and my age is ___
-name = input ("Enter Your Name : ")
-age = int(input ("Enter Your Age :"))
-print ("My name is : ",name," and my age is : ",age)
-
-# %%
-# 6. Take an integer as input and print its square.
-num2 = int(input ("Enter a number :"))
-print ("square of ",num2, " is ", num2*num2)
+# 5. Take name and age as input and print a formatted sentence.
+name = input("Enter your name: ")
+age = int(input("Enter your age: "))
+print(f"My name is {name} and my age is {age}.")
 
 
-# %%
-# 7. Take two integers as input and print their sum.
-num3 = int(input ("Enter first number :"))
-num4 = int(input ("Enter second number :"))
-print ("sum of ",num3, "and ",num4," is : ",num3+num4)
+# =============================================================================
+# B. INTEGER ARITHMETIC
+# =============================================================================
 
-# %%
-# 8. Take two integers and print:
-# Addition
-# Subtraction
-# Multiplication
-num1 = int(input ("Enter first number :"))
-num2 = int(input ("Enter second number :"))
-print ("Addition of ",num1, "and ",num2," is : ",num1+num2)
-print ("Subtraction of ",num1, "and ",num2," is : ",num1-num2)
-print ("Multiplication of ",num1, "and ",num2," is : ",num1*num2)
+# 6. Take an integer and print its square.
+num = int(input("Enter a number: "))
+print(f"Square of {num} = {num ** 2}")
 
-# %%
-# 9. Take a number and print:
-# The number entered is <number>
-num = int(input ("Enter a number :"))
-print ("The number entered is : ",num)
+# 7. Take two integers and print their sum.
+num1 = int(input("Enter first number: "))
+num2 = int(input("Enter second number: "))
+print(f"Sum of {num1} and {num2} = {num1 + num2}")
 
-# %%
+# 8. Take two integers and print addition, subtraction, and multiplication.
+num1 = int(input("Enter first number: "))
+num2 = int(input("Enter second number: "))
+print(f"Addition       : {num1 + num2}")
+print(f"Subtraction    : {num1 - num2}")
+print(f"Multiplication : {num1 * num2}")
+
+# 9. Take a number and print it back.
+num = int(input("Enter a number: "))
+print(f"The number entered is: {num}")
+
 # 10. Take an integer and print its double.
-num = int(input ("Enter a number :"))
-print ("Double of ",num," is : ",num*2)
+num = int(input("Enter a number: "))
+print(f"Double of {num} = {num * 2}")
 
-# %%
+
+# =============================================================================
+# C. FLOAT ARITHMETIC
+# =============================================================================
+
 # 11. Take a float value as input and print it.
-num = float(input ("Enter a float number :"))
-print ("The float number entered is : ",num)
+num = float(input("Enter a float number: "))
+print(f"Float entered: {num}")
 
-
-# %%
 # 12. Take two float numbers and print their sum.
-num1 = float(input ("Enter first float number :"))
-num2 = float(input ("Enter second float number :"))
-print ("Sum of ",num1, " and ",num2, " is : ",num1+num2)
+num1 = float(input("Enter first float number: "))
+num2 = float(input("Enter second float number: "))
+print(f"Sum = {num1 + num2}")
 
-# %%
-# 13. Take a float number and print its half value.
-num = float(input ("Enter second number :"))
-print (num/2)
+# 13. Take a float number and print its half.
+num = float(input("Enter a number: "))
+print(f"Half of {num} = {num / 2}")
 
-# %%
-# 14. Take length and width (float) as input and print the area of a rectangle.
-length = float(input ("Enter length of rectangle :"))
-width = float(input ("Enter width of rectangle :"))
-print ("Area of rectangle is : ",length*width)
+# 14. Take length and width (float) and print the area of a rectangle.
+length = float(input("Enter length: "))
+width = float(input("Enter width: "))
+print(f"Area of rectangle = {length * width}")
 
-# %%
-# 15. Take radius as float input and print the area of a circle.
-# (Use π = 3.14)
-radius = float(input ("Enter radius of circle :"))
-pi = 3.14
-print ("Area of circle is : ",pi*radius*radius)
+# 15. Take radius (float) and print the area of a circle. (π = 3.14)
+radius = float(input("Enter radius: "))
+PI = 3.14
+print(f"Area of circle = {PI * radius ** 2}")
 
-# %%
+
+# =============================================================================
+# D. MIXED INT & FLOAT
+# =============================================================================
+
 # 16. Take one integer and one float as input and print both.
-num1 = int(input ("Enter an integer :"))
-num2 = float(input ("Enter a float number :"))
-print ("Integer entered is : ",num1)
-print ("Float number entered is : ",num2)
+num1 = int(input("Enter an integer: "))
+num2 = float(input("Enter a float number: "))
+print(f"Integer : {num1}")
+print(f"Float   : {num2}")
 
-# %%
-# 17. Take total marks (int) and number of subjects (int) and print the average as float.
-total_marks = int(input ("Enter total marks :"))
-num_subjects = int(input ("Enter number of subjects :"))
-print ("Average marks is : ",float(total_marks)/num_subjects)
+# 17. Take total marks (int) and number of subjects (int), print average as float.
+total_marks = int(input("Enter total marks: "))
+num_subjects = int(input("Enter number of subjects: "))
+print(f"Average marks = {total_marks / num_subjects:.2f}")
 
-# %%
-# 18. Take price (float) and quantity (int) and print the total cost.
-price = float(input ("Enter price of item :"))
-quantity = int(input ("Enter quantity :"))
-print ("Total cost is : ",price*quantity)
+# 18. Take price (float) and quantity (int), print total cost.
+price = float(input("Enter price per item: "))
+quantity = int(input("Enter quantity: "))
+print(f"Total cost = {price * quantity:.2f}")
 
-# %%
-# 19. Take two numbers (one int, one float) and print their sum.
-num1 = int(input ("Enter an integer :"))
-num2 = float(input ("Enter a float number :"))
-print ("Sum is : ",num1+num2)
+# 19. Take one int and one float, print their sum.
+num1 = int(input("Enter an integer: "))
+num2 = float(input("Enter a float number: "))
+print(f"Sum = {num1 + num2}")
 
-# %%
-# 20. Take salary (float) and bonus (int) and print the final salary.
-salary = float(input ("Enter salary :"))
-bonus = int(input ("Enter bonus :"))
-print ("Final salary is : ",salary+bonus)
+# 20. Take salary (float) and bonus (int), print final salary.
+salary = float(input("Enter salary: "))
+bonus = int(input("Enter bonus: "))
+print(f"Final salary = {salary + bonus:.2f}")
