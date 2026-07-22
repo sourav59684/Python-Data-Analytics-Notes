@@ -4,8 +4,9 @@ Beginner-friendly, example-driven notes for learning Python, NumPy, and Pandas
 for data analytics — written the same way as the companion
 [SQL Data Analytics Notes](https://github.com/sourav59684/SQL-Data-Analytics-Notes).
 
-Each file explains one topic area in plain language, with simple runnable
-examples and small practice questions. No prior data analytics experience assumed.
+Each file explains one topic area in plain language, with a Concept
+breakdown, a Common Methods table, worked examples, common mistakes, and
+practice questions with answers. No prior data analytics experience assumed.
 
 ---
 
@@ -56,7 +57,7 @@ examples and small practice questions. No prior data analytics experience assume
 | 1 | [01_groupby_and_aggregation.md](05_advanced_analytics/01_groupby_and_aggregation.md) | Split-apply-combine, agg() |
 | 2 | [02_combining_data.md](05_advanced_analytics/02_combining_data.md) | merge, join, concat |
 | 3 | [03_pivot_tables.md](05_advanced_analytics/03_pivot_tables.md) | pivot_table, crosstab |
-| 4 | [04_time_series.md](05_advanced_analytics/04_time_series.md) | datetime basics, resampling |
+| 4 | [04_time_series.md](05_advanced_analytics/04_time_series.md) | datetime basics, resampling, rolling windows |
 
 ### 06. Data Visualization
 | # | File | Covers |
@@ -82,3 +83,11 @@ See [`requirements.txt`](requirements.txt) for the libraries used throughout the
 ```bash
 pip install -r requirements.txt
 ```
+
+## 📖 How to Use This Repo
+
+1. Go folder by folder, in order — each one builds on the last.
+2. Every file has worked examples — actually run them yourself, don't just read.
+3. Try the practice questions at the end of each file before checking the answers.
+4. Once you finish all 7 sections, work through the capstone project to tie
+   everything together on a realistic dataset.
