@@ -1,0 +1,16 @@
+product,category,price,quantity,city,sale_date
+Pen,Stationery,10,50,Mumbai,2024-01-02
+Notebook,Stationery,40,30,Delhi,2024-01-03
+Bag,Accessories,500,5,Mumbai,2024-01-04
+Bottle,Accessories,150,20,Pune,2024-01-05
+Pen,Stationery,10,80,Delhi,2024-01-06
+Notebook,Stationery,,25,Mumbai,2024-01-07
+Bag,Accessories,520,3,Chennai,2024-01-08
+Bottle,Accessories,145,15,Bangalore,2024-01-09
+Pen,Stationery,10,50,Mumbai,2024-01-02
+Charger,Electronics,899,10,Delhi,2024-01-10
+Earphones,Electronics,1299,7,Pune,2024-01-11
+Notebook,Stationery,42,40,Chennai,2024-01-12
+Bag,Accessories,,4,Mumbai,2024-01-13
+Charger,Electronics,25000,1,Bangalore,2024-01-14
+Bottle,Accessories,155,18,Delhi,2024-01-15
