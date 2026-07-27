@@ -548,3 +548,131 @@
 #     data = pickle.load(file)
 
 # print(data)
+
+# def sum_of(a,b) :
+#     return a+b
+# num1 = int(input("enter first number : "))
+# num2 = int(input("enter second number : "))
+# print (sum_of(num1, num2))
+
+#wap to check if a number is prime or not
+# def isprime(x) :
+#     if x>0 :
+#         check = 0
+#         for i in range(1,x+1) :
+#             if x%i == 0 :
+#                 check = check + 1
+#         if check == 2 :
+#             print (x, "is a prime number")
+#         else:
+#             print (x, "is not a prime number")
+#     else :
+#         print ("enter a number greater than 0")
+# isprime(3)
+
+# def checkPrime(num):
+#     for i in range(2, num):
+#         if num % i == 0:
+#             return "Not Prime"
+#     return "Prime"
+
+# print(checkPrime(9))
+
+# def primeNumbers():
+#     li = []
+#     for i in range(1,101) :
+#         count = 0
+#         for j in range (1,i+1) :
+#             if i%j == 0 :
+#                 count = count + 1
+#         if count == 2:
+#             print(i , "is prime")
+#             li.append(i)
+#     print (li)
+
+# # primeNumbers()
+
+# #lambda expression
+# # cube = lambda c : c**3
+# # print (cube(2))
+
+# sum_of = lambda x,y : x+y
+# # print (sum_of(81,9))
+
+# li = [4,95,7,3,465,6,21,321]
+# # cube = lambda x : x**3
+# # # for i in li :
+# # #     print (cube(i))
+
+# # print (list (map (cube, li)))
+
+# square = lambda s : s**2
+# even = lambda s : s%2 == 0
+# # print (tuple (map   ( square, li )))
+# # print (list  (filter( even  , li )))
+# # print (list  (map   ( even  , li )))
+# from functools import reduce
+# # print (reduce (sum_of, li))
+# # b = list (map(square, li))
+# # print (b)
+# # l = [1,2,3]
+# e = list(filter (even, li))
+# print (e)
+# print (reduce (sum_of, map(square, filter (even, li))))
+
+'''
+mini project
+store management
+entity
+customer (cid, cname, cadd, cmob)
+product (pid, pname, price, pdesc)
+orders (oid, cid ,pid, qty)
+menu options:
+1. add customer
+2. view all customers
+3. delete a customer
+4. add product 
+5. view all products
+6. update a products
+7. place an order
+8. view all orders
+9. view orders by cid
+0. exit
+'''
+#method to add info
+import pickle
+def add_customer ():
+        cus_id   = input("enter customer ID : ")
+        cus_name = input("enter Customer name : ")
+        cus_add  = input("enter Customer address : ")
+        cus_mob  = input("enter Customer mobile : ")
+        data = (cus_id, [cus_name, cus_add, cus_mob])
+        with open ('database.bin', 'ab+') as file :
+            pickle.dump(data , file)
+        print("\n\t data added sucessfully!\n")
+
+while True :
+    print ("\t\t Welcome to Store Management System")
+    print ("""
+    1. add customer
+    2. view all customers
+    3. delete a customer
+    4. add product
+    5. view all products
+    6. update a products
+    7. place an order
+    8. view all orders
+    9. view orders by cid
+    0. exit
+    """)
+    choice = int(input ("\t\t Choose an option to coninue : "))
+    database = {}
+    
+
+
+    if choice == 1 :
+        add_customer()
+
+    if choice == 0 :
+        print ("\t\t Thank you!")
+        break
