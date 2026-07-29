@@ -639,18 +639,67 @@ menu options:
 9. view orders by cid
 0. exit
 '''
-#method to add info
 import pickle
+#method to add info
 def add_customer ():
         cus_id   = input("enter customer ID : ")
         cus_name = input("enter Customer name : ")
         cus_add  = input("enter Customer address : ")
         cus_mob  = input("enter Customer mobile : ")
-        data = (cus_id, [cus_name, cus_add, cus_mob])
+        data = {cus_id : [cus_name, cus_add, cus_mob]}
         with open ('database.bin', 'ab+') as file :
             pickle.dump(data , file)
         print("\n\t data added sucessfully!\n")
+        input("\nPress Enter to return to the main menu...")
 
+#method to view customer info
+def view_customer():
+    print("\n\t\t Customer Details\n")
+    with open("database.bin", "rb") as file:
+        while True:
+            try:
+                record = pickle.load(file)
+                print(record)
+            except EOFError:
+                break
+        input("\nPress Enter to return to the main menu...")
+
+
+#method to delete customer info
+import pickle
+
+
+# A METHOD TO DELETE A CUSTOMER
+def delete_customer():
+    file = open("database.bin", "rb")
+    cid = input("Enter Customer ID To Delete : ")
+    cus = dict()
+
+    # Step 1: Read all records into one dictionary
+    try:
+        while True:
+            data = pickle.load(file)
+            cus.update(data)
+    except:
+        pass  # EOF reached
+
+    file.close()
+
+    # Step 2: Remove the customer key
+    try:
+        cus.pop(cid)
+        print("\n\t Customer Deleted Successfully!")
+    except:
+        print("\n\t Customer Not Found!")
+
+    # Step 3: OVERWRITE the file with the updated dictionary
+    file = open("database.bin", "wb")
+    pickle.dump(cus, file)
+    file.close()
+
+    input("\nPress Enter to return to the main menu...")
+
+#Dashboard 
 while True :
     print ("\t\t Welcome to Store Management System")
     print ("""
@@ -667,12 +716,36 @@ while True :
     """)
     choice = int(input ("\t\t Choose an option to coninue : "))
     database = {}
-    
 
-
+    if choice == 0 :
+            print ("\t\t Thank you!")
+            break
+#customer options
     if choice == 1 :
         add_customer()
 
-    if choice == 0 :
-        print ("\t\t Thank you!")
-        break
+    if choice == 2 :
+            view_customer()
+
+    if choice == 3 :
+            delete_customer()
+#product options
+    if choice == 4 :
+            add_product()
+
+    if choice == 5 :
+            view_product()
+
+    if choice == 6 :
+            update_product()
+#order options
+    if choice == 7 :
+            order()
+
+    if choice == 8 :
+            view_order()
+
+    if choice == 9 :
+            order_by_cid()
+
+    
