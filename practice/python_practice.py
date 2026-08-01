@@ -587,3 +587,6 @@ def validate_age_with_custom_exception():
     print("welcome to my page")
 
 # validate_age_with_custom_exception()
+
+with open ('student.dat', 'rb') as file:
+    print(file.read())
