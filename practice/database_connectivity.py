@@ -51,6 +51,70 @@ data = curr.fetchall()
 for table in data:
     print ("list of tables are : \n" , table[0])
 
+choice = input("Press Y to enter data into tables : ")
+if choice.lower() == 'y':
+    curr.execute('show tables')
+    data = curr.fetchall()
+    for table in data:
+        print ("list of tables are : \n" , table[0])
+
+    table_name = input ("enter the name of table to insert data : ")
+    tables = [table[0] for table in data]
+    if table_name in tables :
+        print("table found \n enter the details below : ")
+        while True :
+            sname = input("enter student name : ")
+            semail = input("enter student email : ")
+            smobile = input("enter sutdent mobile : ")
+            classid = int(input(" enter class id : "))
+
+            curr.execute (f"insert into {table_name} (sname, semail, smobile, classid) values (%s,%s,%s,%s)",
+                        (sname, semail, smobile, classid))
+            conn.commit()
+            choice = input ("press Y to insert more data : ")
+            if choice.lower() != 'y':
+                break
+    else :
+        print("table dosen't exist")
+
+conn.commit()
+
+#view data from tables
+def view_tables() :
+    curr.execute('show tables')
+    data = curr.fetchall()
+    for table in data:
+        print ("list of tables are : \n" , table[0])
+    choice = input ("enter the name of table you want to view :")
+    tables = [table[0] for table in data]
+    if choice in tables :
+        print("table found \n Here is the table details : ")
+        curr.execute(f'select * from {choice}')
+        data = curr.fetchall()
+#viewing columns
+        curr.execute(f"SHOW COLUMNS FROM {choice}")
+        columns = curr.fetchall()
+        print()
+        for col in columns:
+            print(col[0], end=" ")
+        print() #to move to next line
+
+        for row in data:
+            
+            #print (row[0],"\t",row[1],"\t",row[2],"\t",row[3],"\t",row[4])
+            print (col[0]," : ",row[0],
+                   col[1]," : ",row[1],
+                   col[2]," : ",row[2],
+                   col[3]," : ",row[3],
+                   col[4]," : ",row[4])
+    else :
+        print ("table not found")
+
+view_tables()
+
+
+
+
 
 
 curr.close()
