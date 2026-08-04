@@ -1,90 +1,177 @@
-#essential for mysql connectivity
+"""
+Simple interactive CLI to manage MySQL databases/tables.
+
+NOTE ON SECURITY:
+- Table/database/column names CANNOT be parameterized with %s placeholders
+  in MySQL (only values can). Since identifiers are always validated against
+  a list fetched live from the server (SHOW DATABASES / SHOW TABLES / SHOW
+  COLUMNS) before being used in an f-string, an attacker can't inject
+  arbitrary SQL through them -- the input has to match a real existing
+  name first. Data VALUES, however, always go through parameterized
+  queries (the %s placeholders below) rather than string formatting.
+"""
+
 import mysql.connector
+from getpass import getpass
 
-conn = mysql.connector.connect(
-    host='127.0.0.1',
-    port='3306',
-    user='root',
-    password='root'
-)
+# --- Connection setup -------------------------------------------------
+# All connection details are now asked for at startup instead of hardcoded,
+# so the script isn't tied to one server/user. Pressing ENTER on any prompt
+# falls back to a sensible local default.
+def get_connection():
+    print("=== Connect to MySQL server ===")
+    # Note: MySQL treats 'localhost' and '127.0.0.1' as different accounts
+    # ('root'@'localhost' vs 'root'@'127.0.0.1') -- they can have different
+    # passwords or auth plugins even on the same machine. 'localhost' also
+    # uses a Unix socket / named pipe rather than TCP, which is usually
+    # how local root accounts are set up by default.
+    host = input("Host [localhost]: ").strip() or "localhost"
 
-# Using buffered=True prevents unread result conflicts between queries
+    port_raw = input("Port [3306]: ").strip() or "3306"
+    try:
+        port = int(port_raw)
+    except ValueError:
+        print(f"'{port_raw}' isn't a valid port, defaulting to 3306.")
+        port = 3306
+
+    user = input("Username [root]: ").strip() or "root"
+
+    # getpass() hides the password as it's typed instead of echoing it to
+    # the terminal. Hardcoding credentials in source is fine for quick local
+    # experiments, but avoid committing real passwords to version control.
+    password = getpass(f"Password for {user}: ")
+
+    try:
+        connection = mysql.connector.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+        )
+        print(f"\nConnected to {host}:{port} as '{user}'.\n")
+        return connection
+    except mysql.connector.Error as err:
+        print(f"\nConnection failed: {err}")
+        raise SystemExit(1)
+
+
+conn = get_connection()
+
+# buffered=True prevents "Unread result found" errors when you run a new
+# query before fully consuming the previous one's results.
 curr = conn.cursor(buffered=True)
 
-#================================================================#
 
+# =======================================================================
 # 1. Show existing databases
+# =======================================================================
 def show_db():
     curr.execute("SHOW DATABASES")
-    print("""
-            ###################################################
-            ###             LIST OF DATABASES              ####
-            ###################################################
-            """)
+    print("\n### LIST OF DATABASES ###")
     for db in curr.fetchall():
         print("➜ ", db[0])
-    print("###################################################")
+    print("##########################")
+    input("\nPress ENTER to return to main menu...")
 
+
+# =======================================================================
 # 2. Create a new database
+# =======================================================================
 def create_db():
     newdb = input("Enter the name for new database: ").strip()
+    if not newdb:
+        print("Database name cannot be empty.")
+        input("\nPress ENTER to return to main menu...")
+        return
+
     curr.execute("SHOW DATABASES")
     databases = [db[0] for db in curr.fetchall()]
-    if newdb in databases:
-        print("""
-                ###################################################
-                ###                   WARNING                  ####
-                ###        Database already exists             ####
-                ###################################################
-                """)
-    else:
-        curr.execute(f"CREATE DATABASE {newdb}")
-        print(f"""
-                ###################################################
-                ###                   SUCCESS                  ####
-                ###      Database created successfully         ####
-                ###################################################
-                ###      Database Name : {newdb}                ###
-                ###################################################
-                """)
 
-#3. use database
+    if newdb in databases:
+        print("\n### WARNING: Database already exists ###")
+    else:
+        # Backticks let names with special characters/reserved words work safely.
+        curr.execute(f"CREATE DATABASE `{newdb}`")
+        print(f"\n### SUCCESS: Database '{newdb}' created ###")
+
+    input("\nPress ENTER to return to main menu...")
+
+
+# =======================================================================
+# 3. Use / select a database
+# =======================================================================
 def use_db():
     show_db()
-    db = input("enter the name of database you want to use : ")
+    db = input("Enter the name of the database you want to use: ").strip()
     curr.execute("SHOW DATABASES")
-    databases = [db[0] for db in curr.fetchall()]
-    if db in databases:
-        curr.execute(f"use {db}")
-        print(f"database selected sucessfully. selected database name : {db}")
-    else:
-        print("database dosent exist")
+    databases = [d[0] for d in curr.fetchall()]
 
-# 4. View all tables
+    if db in databases:
+        # conn.database is the driver's built-in way to switch databases --
+        # avoids building a raw "USE ..." string yourself.
+        conn.database = db
+        print(f"Database selected successfully: {db}")
+    else:
+        print("Database does not exist.")
+
+    input("\nPress ENTER to return to main menu...")
+
+
+# =======================================================================
+# 4. View all tables in the currently selected database
+# =======================================================================
 def view_tables():
     curr.execute("SHOW TABLES")
     tables = curr.fetchall()
 
-    print("\n===================================================")
-    print("                LIST OF TABLES")
-    print("===================================================")
-
+    print("\n=== LIST OF TABLES ===")
     for table in tables:
         print("➜", table[0])
+    print("=======================")
+    input("\nPress ENTER to return to main menu...")
 
-    print("===================================================")
 
-#5. create a table
+# =======================================================================
+# 5. Create a table
+# =======================================================================
 def create_table():
-    pass
+    # Was a stub (`pass`) in the original script. A minimal interactive
+    # implementation -- extend as needed for more column types/constraints.
+    table_name = input("Enter new table name: ").strip()
+    if not table_name:
+        print("Table name cannot be empty.")
+        input("\nPress ENTER to return to main menu...")
+        return
+
+    print("Define columns. Leave column name blank to finish.")
+    columns_sql = []
+    while True:
+        col_name = input("  Column name: ").strip()
+        if not col_name:
+            break
+        col_type = input("  Column type (e.g. VARCHAR(100), INT): ").strip()
+        columns_sql.append(f"`{col_name}` {col_type}")
+
+    if not columns_sql:
+        print("A table needs at least one column.")
+        input("\nPress ENTER to return to main menu...")
+        return
+
+    query = f"CREATE TABLE `{table_name}` ({', '.join(columns_sql)})"
+    try:
+        curr.execute(query)
+        conn.commit()
+        print(f"\n### SUCCESS: Table '{table_name}' created ###")
+    except mysql.connector.Error as err:
+        print(f"Error creating table: {err}")
+
+    input("\nPress ENTER to return to main menu...")
 
 
-
-#6. insert data into tables
-# Insert data into any table
+# =======================================================================
+# 6. Insert data into any table
+# =======================================================================
 def insert_data():
-
-    # Show tables
     curr.execute("SHOW TABLES")
     tables = [table[0] for table in curr.fetchall()]
 
@@ -93,193 +180,160 @@ def insert_data():
         print("➜", table)
 
     table_name = input("\nEnter table name: ").strip()
-
     if table_name not in tables:
         print("Table does not exist")
+        input("\nPress ENTER to return to main menu...")
         return
 
+    curr.execute(f"SHOW COLUMNS FROM `{table_name}`")
+    columns = curr.fetchall()
+    columns_name = [each[0] for each in columns]
 
-    # Get columns of selected table
-    curr.execute(f"SHOW COLUMNS FROM {table_name}")
-    columns = [col[0] for col in curr.fetchall()]
+    print(f"\n{'Column':<15}{'Type':<20}{'Null':<8}{'Key':<8}{'Default':<12}{'Extra'}")
+    print("-" * 75)
+    for field, dtype, null, key, default, extra in columns:
+        print(f"{field:<15}{dtype:<20}{null:<8}{key:<8}{str(default):<12}{extra}")
 
-
-    print("\nAvailable Columns:")
-    for col in columns:
-        print("➜", col)
-
-
-    # User selects columns
-    selected_columns = input(
-        "\nEnter columns to insert (comma separated): "
-    ).strip().split(",")
-
-
-    # Remove extra spaces
+    selected_columns = input("\nEnter columns to insert (column1, column2, column3...): ").split(",")
     selected_columns = [col.strip() for col in selected_columns]
 
-
-    # Validate columns
     for col in selected_columns:
-        if col not in columns:
+        if col not in columns_name:
             print(f"{col} column does not exist")
+            input("\nPress ENTER to return to main menu...")
             return
 
-
-    # Take values
-    values = []
-
+    # BUG FIX: the original code appended to an undefined `values` list
+    # instead of `new_values`, which would raise a NameError as soon as
+    # this ran. Now consistently using `new_values`.
+    new_values = []
     for col in selected_columns:
         value = input(f"Enter value for {col}: ").strip()
-        values.append(value)
+        new_values.append(value)
 
-
-    # Create placeholders
-    placeholders = ",".join(["%s"] * len(values))
-
-
-    # Create SQL query
+    placeholders = ",".join(["%s"] * len(new_values))
     query = f"""
-    INSERT INTO {table_name}
-    ({','.join(selected_columns)})
+    INSERT INTO `{table_name}`
+    ({','.join(f'`{c}`' for c in selected_columns)})
     VALUES ({placeholders})
     """
 
+    try:
+        curr.execute(query, new_values)
+        conn.commit()
+        print("\n### SUCCESS: Data inserted successfully ###")
+    except mysql.connector.Error as err:
+        # Roll back so a failed insert doesn't leave a half-open transaction.
+        conn.rollback()
+        print(f"Error inserting data: {err}")
 
-    curr.execute(query, values)
+    input("\nPress ENTER to return to main menu...")
 
-    conn.commit()
 
-    print("""
-###################################################
-###                   SUCCESS                  ####
-###             Data inserted successfully     ####
-###################################################
-""")
+# =======================================================================
+# Startup: pick a database before showing the main menu
+# =======================================================================
+def select_initial_database():
+    """
+    Runs once at startup. Loops until the user has either selected an
+    existing database or created and selected a new one -- the main menu
+    doesn't appear until conn.database is actually set.
+    """
+    while True:
+        curr.execute("SHOW DATABASES")
+        databases = [db[0] for db in curr.fetchall()]
 
-#dashboard
-print("===============  welcome to automate sql script using python by sourav singh  ===================")
-while True:
-    print("""
+        print("\n### AVAILABLE DATABASES ###")
+        for db in databases:
+            print("➜ ", db)
+        print("############################")
+
+        choice = input(
+            "\nEnter a database name to use it, or type 'new' to create one: "
+        ).strip()
+
+        if choice.lower() == "new":
+            newdb = input("Enter the name for the new database: ").strip()
+            if not newdb:
+                print("Database name cannot be empty.")
+                continue
+            if newdb in databases:
+                print("That database already exists -- selecting it.")
+            else:
+                curr.execute(f"CREATE DATABASE `{newdb}`")
+                print(f"Database '{newdb}' created.")
+            conn.database = newdb
+            return
+
+        if choice in databases:
+            conn.database = choice
+            return
+
+        print(f"'{choice}' is not a valid option. Try again.")
+
+
+# =======================================================================
+# Dashboard / main menu loop
+# =======================================================================
+def main():
+    print("=============== Welcome to Automate SQL Script (by Sourav Singh) ===================")
+
+    select_initial_database()
+
+    actions = {
+        1: show_db,
+        2: create_db,
+        3: use_db,
+        4: view_tables,
+        5: create_table,
+        6: insert_data,
+    }
+
+    while True:
+        # Re-read conn.database each loop so the header stays accurate
+        # after use_db() or create_db() changes the active database.
+        menu = f"""
+        --- Connected to database: {conn.database} ---
         1. SHOW DATABASES (view all available databases)
-        2. CREATE DATABASE (create a new database if it dosen't exists)
-        3. USE DATABASE (IMPORTANT :- use the selected database)
+        2. CREATE DATABASE (create a new database if it doesn't exist)
+        3. USE DATABASE (switch the active database)
         4. VIEW TABLES (view all tables inside the selected database)
-        5. CREATE TABLE (create new tables in a database)
+        5. CREATE TABLE (create a new table)
         6. INSERT INTO TABLE (insert data into tables)
-        7. 
-        8. 
-        9. 
         0. Exit
-        """)
-    choice = int(input("choose the option below for query : "))
-    print()
+        """
+        print(menu)
+        raw_choice = input("Choose an option: ").strip()
 
-    if choice == 0:
-            print("\t\t Thank you! For using my script")
+        # Guard against non-numeric input crashing the script (the
+        # original used a bare int(input(...)) with no error handling).
+        if not raw_choice.isdigit():
+            print("Invalid choice, try again.")
+            continue
+
+        choice = int(raw_choice)
+        print()
+
+        if choice == 0:
+            print("\t\tThank you! For using my script")
             break
-    elif choice == 1 :
-        print("===============  ====================================================  ===================")
-        show_db()
-        input("Press ENTER to continue...")
-    elif choice == 2 :
-        print("===============  ====================================================  ===================")
-        create_db()
-        input("Press ENTER to continue...")
-    elif choice == 3:
-        use_db()
-        input("Press ENTER to continue...")
-    elif choice == 4:
-        view_tables()
-    elif choice == 5:
-        create_table()
-    elif choice == 6:
-        insert_data()
-    else:
-        print("Invalid choice, try again.")
-#================================================================#
 
-# #creating student table
-# curr.execute(
-#     'create table if not exists student_info (' \
-#     'sid int primary key auto_increment,' \
-#     'sname varchar (100) not null,' \
-#     'semail varchar (100) unique,' \
-#     'smobile varchar (15),' \
-#     'classid int'
-#     ')'
-# )
-
-# curr.execute('show tables')
-# data = curr.fetchall()
-# for table in data:
-#     print ("list of tables are : \n" , table[0])
-
-# choice = input("Press Y to enter data into tables : ")
-# if choice.lower() == 'y':
-#     curr.execute('show tables')
-#     data = curr.fetchall()
-#     for table in data:
-#         print ("list of tables are : \n" , table[0])
-
-#     table_name = input ("enter the name of table to insert data : ")
-#     tables = [table[0] for table in data]
-#     if table_name in tables :
-#         print("table found \n enter the details below : ")
-#         while True :
-#             sname = input("enter student name : ")
-#             semail = input("enter student email : ")
-#             smobile = input("enter sutdent mobile : ")
-#             classid = int(input(" enter class id : "))
-
-#             curr.execute (f"insert into {table_name} (sname, semail, smobile, classid) values (%s,%s,%s,%s)",
-#                         (sname, semail, smobile, classid))
-#             conn.commit()
-#             choice = input ("press Y to insert more data : ")
-#             if choice.lower() != 'y':
-#                 break
-#     else :
-#         print("table dosen't exist")
-
-# conn.commit()
-
-# #view data from tables
-# def view_tables() :
-#     curr.execute('show tables')
-#     data = curr.fetchall()
-#     for table in data:
-#         print ("list of tables are : \n" , table[0])
-#     choice = input ("enter the name of table you want to view :")
-#     tables = [table[0] for table in data]
-#     if choice in tables :
-#         print("table found \n Here is the table details : ")
-#         curr.execute(f'select * from {choice}')
-#         data = curr.fetchall()
-# #viewing columns
-#         curr.execute(f"SHOW COLUMNS FROM {choice}")
-#         columns = curr.fetchall()
-#         print()
-#         for col in columns:
-#             print(col[0], end=" ")
-#         print() #to move to next line
-
-#         for row in data:
-            
-#             #print (row[0],"\t",row[1],"\t",row[2],"\t",row[3],"\t",row[4])
-#             print (col[0]," : ",row[0],
-#                    col[1]," : ",row[1],
-#                    col[2]," : ",row[2],
-#                    col[3]," : ",row[3],
-#                    col[4]," : ",row[4])
-#     else :
-#         print ("table not found")
-
-# view_tables()
+        action = actions.get(choice)
+        if action:
+            try:
+                action()
+            except mysql.connector.Error as err:
+                print(f"Database error: {err}")
+                input("\nPress ENTER to return to main menu...")
+        else:
+            print("Invalid choice, try again.")
 
 
-
-
-
-
-curr.close()
-conn.close()
+if __name__ == "__main__":
+    try:
+        main()
+    finally:
+        # finally ensures the connection closes even if something above
+        # raises an unhandled exception.
+        curr.close()
+        conn.close()
